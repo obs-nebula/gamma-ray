@@ -1,3 +1,6 @@
 # gamma-ray
 
-> not the band, https://en.wikipedia.org/wiki/Gamma_ray
+This repository contains specific How-tos about OpenTelemetry-JS.
+
+* [Traces](./traces/README.md)
+
