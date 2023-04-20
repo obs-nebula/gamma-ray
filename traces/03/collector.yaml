@@ -1,0 +1,18 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        cors:
+          allowed_origins: ["*"]
+          allowed_headers: ["*"]
+exporters:
+  logging:
+    verbosity: Detailed
+processors:
+  batch:
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [logging]
+      processors: [batch]
