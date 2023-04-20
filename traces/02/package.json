@@ -4,9 +4,8 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "NODE_OPTIONS='--require ./dist/otel.js' node dist/server.js",
-    "prestart": "npm run compile",
     "lint": "eslint . --ext .ts",
-    "compile": "tsc --build tsconfig.json",
+    "build": "tsc --build tsconfig.json",
     "clean": "rm -Rf dist"
   },
   "devDependencies": {
