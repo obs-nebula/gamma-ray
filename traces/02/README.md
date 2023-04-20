@@ -12,6 +12,7 @@ npm init -y
 npm install @opentelemetry/api \
 @opentelemetry/instrumentation-express \
 @opentelemetry/instrumentation-http \
+@opentelemetry/exporter-trace-otlp-http \
 @opentelemetry/resources \
 @opentelemetry/sdk-trace-node \
 @opentelemetry/semantic-conventions \
