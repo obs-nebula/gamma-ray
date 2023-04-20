@@ -26,20 +26,22 @@ Create a file `otel.ts`
 import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import {
-  ConsoleSpanExporter,
   NodeTracerProvider,
   SimpleSpanProcessor,
 } from '@opentelemetry/sdk-trace-node';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
 const resource = new Resource({
   [SemanticResourceAttributes.SERVICE_NAME]: process.env.npm_package_name,
 });
 
+const exporter = new OTLPTraceExporter();
+
 const provider = new NodeTracerProvider({ resource: resource });
-provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
 provider.register();
 
 registerInstrumentations({
@@ -47,7 +49,6 @@ registerInstrumentations({
   tracerProvider: provider,
 });
 ```
-
 ## Update the package.json to require the trace code
 
 ```json
@@ -55,7 +56,6 @@ registerInstrumentations({
   "start": "NODE_OPTIONS='--require ./dist/otel.js' node dist/server.js",
 }
 ```
-
 ## Configure OTELCOL operator + Jaeger operator
 
 Make sure to install OpenShift Local and the Operators. For this you can follow the instructions [here](https://github.com/obs-nebula/gamma-ray/blob/main/traces/01/README.md).
@@ -67,14 +67,26 @@ oc new-project example
 oc create -f jaeger.yml
 oc create -f collector.yml
 ```
-
-### Deploy
+## Deploy this example
 
 ```shell
+# Create a new app using ubi8/nodejs-18, pointing to this specific example and setting the OTELCOL endpoint
 oc new-app registry.access.redhat.com/ubi8/nodejs-18~https://github.com/obs-nebula/gamma-ray --context-dir=/traces/02 -e OTEL_EXPORTER_OTLP_ENDPOINT='http://otel-collector.example.svc:4318'
-```
 
+# Watch the build
+oc logs -f buildconfig/gamma-ray
+
+# Expose the example
+oc expose service/gamma-ray
+```
 ## See the result
 
-Foo Bar XPTO
+```shell
+# Get the example's route with the following command
+oc get route gamma-ray -n example --template='https://{{.spec.host}}'
+https://gamma-ray-example.apps-crc.testing
 
+# Get the Jaeger's route with the following command
+oc get route jaeger -n example --template='https://{{.spec.host}}'
+https://jaeger-example.apps-crc.testing
+```
