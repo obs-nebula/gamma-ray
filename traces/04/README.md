@@ -1,4 +1,4 @@
-# How to deploy an Express application on OpenShift Local with OTEL-JS Auto-instrumentation + OTELCOL operator + Jaeger operator
+# How to enable/disable OTEL-JS traces from an Express application deployed to OpenShift
 
 ## Create a project
 
@@ -14,7 +14,7 @@ npm install @opentelemetry/api \
 @opentelemetry/instrumentation-http \
 @opentelemetry/exporter-trace-otlp-http \
 @opentelemetry/resources \
-@opentelemetry/sdk-trace-node \
+@opentelemetry/sdk-node \
 @opentelemetry/semantic-conventions \
 express
 ```
@@ -23,31 +23,25 @@ express
 Create a file `otel.ts`
 
 ```ts
-import { Resource } from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import {
-  NodeTracerProvider,
-  SimpleSpanProcessor,
-} from '@opentelemetry/sdk-trace-node';
-import { registerInstrumentations } from '@opentelemetry/instrumentation';
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-
-const resource = new Resource({
-  [SemanticResourceAttributes.SERVICE_NAME]: process.env.npm_package_name,
-});
+import { error } from 'console';
 
 const exporter = new OTLPTraceExporter();
 
-const provider = new NodeTracerProvider({ resource: resource });
-provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
-provider.register();
-
-registerInstrumentations({
+const sdk = new NodeSDK({
+  traceExporter: exporter,
+  autoDetectResources: true,
   instrumentations: [new HttpInstrumentation(), new ExpressInstrumentation()],
-  tracerProvider: provider,
 });
+
+try {
+  sdk.start();
+} catch (err) {
+  error(err);
+}
 ```
 ## Update the package.json to require the trace code
 
@@ -71,13 +65,21 @@ oc create -f collector.yml
 
 ```shell
 # Create a new app using ubi8/nodejs-18, pointing to this specific example and setting the OTELCOL endpoint
-oc new-app registry.access.redhat.com/ubi8/nodejs-18~https://github.com/obs-nebula/gamma-ray --context-dir=/traces/02 -e OTEL_EXPORTER_OTLP_ENDPOINT='http://otel-collector.example.svc:4318'
+oc new-app registry.access.redhat.com/ubi8/nodejs-18~https://github.com/obs-nebula/gamma-ray --context-dir=/traces/04 -e OTEL_EXPORTER_OTLP_ENDPOINT='http://otel-collector.example.svc:4318'
 
 # Watch the build
 oc logs -f buildconfig/gamma-ray
 
 # Expose the example
 oc expose service/gamma-ray
+```
+## Disable / Enable
+
+```shell
+➜  ~ oc set env deployment/gamma-ray OTEL_SDK_DISABLED=true
+deployment.apps/check-traces updated
+➜  ~ oc set env deployment/gamma-ray OTEL_SDK_DISABLED=false
+deployment.apps/check-traces updated
 ```
 ## See the result
 
