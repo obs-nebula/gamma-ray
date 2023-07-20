@@ -5,3 +5,4 @@
 * [How to use the OpenTelemetry auto-instrumentations-node (meta packages) with a Basic Express application exporting to OTELCOL](./03/README.md)
 * [How to enable/disable OTEL-JS traces from an Express application deployed to OpenShift](./04/README.md)
 * [How to enable/disable OTEL-JS traces from an Express application](./05/README.md)
+* [How to restrict the amount of traces that are generated from an Express application deployed to OpenShift using sampling](./06/README.md)
