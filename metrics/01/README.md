@@ -6,6 +6,7 @@
 mkdir example
 npm init -y
 ```
+
 ## Install the required dependencies
 
 ```shell
@@ -18,6 +19,7 @@ npm @opentelemetry/api \
 @opentelemetry/semantic-conventions \
 express
 ```
+
 ## Use this code for automatic metrics provided by `sdk-node`
 
 Create a file `otel.ts`
@@ -58,11 +60,11 @@ try {
 }
 ```
 
-# Note: 
+## Note
 
 For some reason we need the following packages, which, according to the documentation they are supposed to be used when looking for Traces. If we remove them, we can't see the default metrics being generated.
 
-```
+```ts
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 ```
@@ -74,6 +76,7 @@ import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
   "start": "NODE_OPTIONS='--require ./dist/otel.js' node dist/server.js",
 }
 ```
+
 ## Run this example
 
 ```shell
@@ -83,12 +86,15 @@ npm install
 npm run build
 npm start
 ```
+
 Open a new terminal and run
 
 ```shell
-docker-compose up
+podman-compose up
 ```
+
 Open a new terminal and run a few times
+
 ```shell
 curl localhost:8080
 ```

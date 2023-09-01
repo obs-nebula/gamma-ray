@@ -6,6 +6,7 @@
 mkdir example
 npm init -y
 ```
+
 ## Install the required dependencies
 
 ```shell
@@ -17,6 +18,7 @@ npm install @opentelemetry/api \
 @opentelemetry/semantic-conventions \
 express
 ```
+
 ## Use this code for traces
 
 Create a file `otel.ts`
@@ -52,6 +54,7 @@ registerInstrumentations({
   tracerProvider: provider,
 });
 ```
+
 ## Update the package.json to require the trace code
 
 ```json
@@ -59,6 +62,7 @@ registerInstrumentations({
   "start": "NODE_OPTIONS='--require ./dist/otel.js' node dist/server.js",
 }
 ```
+
 ## Run this example
 
 ```shell
@@ -68,12 +72,15 @@ npm install
 npm run build
 npm start
 ```
+
 Open a new terminal and run
 
 ```shell
-docker-compose up
+podman-compose up
 ```
+
 Open a new terminal and run
+
 ```shell
 curl localhost:8080
 ```
